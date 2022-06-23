@@ -2,13 +2,27 @@
 
 VPN_PROFILE_LIST=/tmp/list_vpn_profile.txt
 PRITUNL_CLIENT=`locate pritunl-client | head -n1`
+ARGS=$1
 
 # update profile list metadata
+
+config_pritunl () {
 $PRITUNL_CLIENT list | grep -v ID | awk -F "|" '{print $2}' | xargs -n1 > $VPN_PROFILE_LIST
 
 # stop all vpn profile
 for a in `cat $VPN_PROFILE_LIST`
 do
 echo "stopping pritunl vpn profile id $a"
-$PRITUNL_CLIENT stop $a
+$PRITUNL_CLIENT $1 $a
 done
+}
+
+
+# check if args empty or not
+if [ -z "$ARGS" ];
+then
+  echo "Args is empty, should be stop, disable, or enable"
+else
+  echo "Executing..."
+  config_pritunl $1
+fi
